@@ -1,8 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { formatDateToVietnamese } from "@/lib/utils";
 import { Task } from "@/types";
-import { Pen, Trash } from "lucide-react";
 import React from "react";
+import DeleteTask from "./delete-task";
+import EditTask from "./edit-task";
 
 type Props = {
   task: Task;
@@ -18,8 +19,8 @@ function TaskCard({ task }: Props) {
           {task.status}
         </Badge>
         <div className="flex items-center gap-2">
-          <Trash size={18} className="text-red-500 cursor-pointer" />
-          <Pen size={18} className="cursor-pointer" />
+          <DeleteTask task={task} />
+          <EditTask task={task} />
         </div>
       </div>
     </div>

@@ -1,83 +1,90 @@
 "use client";
+import { ResponseFromServer, Task } from "@/types";
 import React, { useState, useTransition } from "react";
+import { Pen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ResponseFromServer } from "@/types";
-import SubmitButton from "@/components/submit-button";
+import TaskStatus from "./task-status";
 import { useToast } from "@/components/ui/use-toast";
-import { createTask } from "@/lib/task";
+import { changeTaskName } from "@/lib/task";
+import SubmitButton from "@/components/submit-button";
+import { useRouter } from "next/navigation";
 type Props = {
-  projectId: string;
+  task: Task;
 };
 
-function CreateTask({ projectId }: Props) {
-  const [isPending, startTransition] = useTransition();
+function EditTask({ task }: Props) {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   return (
     <Dialog open={isOpen} onOpenChange={() => setIsOpen(!isOpen)}>
       <DialogTrigger asChild>
-        <Button>Create Task</Button>
+        <Pen size={18} className="cursor-pointer" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create Task</DialogTitle>
+          <DialogTitle>Edit Task</DialogTitle>
           <DialogDescription>
-            Create a new task here. You can update the task whenever you want.
+            Make changes to your task here. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <form
-          action={async (data: FormData) =>
+          action={(data: FormData) =>
             startTransition(async (): Promise<any> => {
               const title = data.get("title") as string;
               if (!title) {
                 return toast({
                   title: "Please enter a title",
-                  variant: "destructive",
-                  duration: 1000,
                 });
               }
-              const res: ResponseFromServer = await createTask(
-                title,
-                projectId
+              const res: ResponseFromServer = await changeTaskName(
+                task.id,
+                title
               );
               toast({
                 title: res.message,
-                variant: res.status === 201 ? "default" : "destructive",
+                variant: res.status === 200 ? "default" : "destructive",
                 duration: 1000,
               });
-              if (res.status === 201) {
+              if (res.status === 200) {
                 setIsOpen(false);
+                router.refresh();
               }
             })
           }
         >
           <div className="grid gap-4 py-4">
-            <div className="grid items-center gap-4">
-              <Label htmlFor="title">Title</Label>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                title
+              </Label>
               <Input
                 name="title"
-                placeholder="Enter task title"
+                defaultValue={task.title}
                 className="col-span-3"
               />
             </div>
+            <TaskStatus task={task} />
           </div>
-          <div className="flex items-center gap-2 justify-end">
-            <SubmitButton isDisabled={isPending} title="Create Project" />
-          </div>
+          <DialogFooter>
+            <SubmitButton isDisabled={isPending} title="Save Changes" />
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   );
 }
 
-export default CreateTask;
+export default EditTask;

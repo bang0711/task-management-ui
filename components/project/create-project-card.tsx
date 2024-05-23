@@ -4,18 +4,15 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { createProject } from "@/lib/project";
 import { ResponseFromServer } from "@/types";
 import { useToast } from "../ui/use-toast";
-import { Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import SubmitButton from "../submit-button";
 
